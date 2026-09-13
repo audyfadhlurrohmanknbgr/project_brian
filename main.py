@@ -43,6 +43,9 @@ STARTING_LEVEL = 1
 # GID Key dari Tiled
 KEY_GID = 28
 
+# Jika firstgid tileset adalah 1:
+KEY_TILE_ID = KEY_GID - 1
+
 
 # =========================================================
 # GAME
@@ -83,7 +86,7 @@ class MyGame(arcade.Window):
 
         self.props = arcade.SpriteList()
 
-        self.obstacles = arcade.SpriteList()
+        self.obstacle = arcade.SpriteList()
 
         self.players = arcade.SpriteList()
 
@@ -235,8 +238,9 @@ class MyGame(arcade.Window):
             "ground"
         )
 
+        # Nama layer di Tiled adalah "obstacle"
         self.obstacles = self.get_layer(
-            "obstacles"
+            "obstacle"
         )
 
         self.props = self.get_layer(
@@ -381,14 +385,25 @@ class MyGame(arcade.Window):
     # CHECK KEY BY GID
     # =====================================================
 
+    # =====================================================
+# CHECK KEY BY TILE ID
+# =====================================================
+
+# =====================================================
+# CHECK KEY BY TILE ID
+# =====================================================
+
     def is_key(self, sprite):
 
         try:
 
-            # Ambil GID dari properties sprite
-            gid = sprite.properties.get("gid")
+            tile_id = sprite.properties.get("tile_id")
 
-            return gid == KEY_GID
+            print(
+                f"Tile ID: {tile_id}"
+            )
+
+            return tile_id == KEY_TILE_ID
 
         except AttributeError:
 
@@ -435,7 +450,7 @@ class MyGame(arcade.Window):
 
         arcade.draw_text(
             f"Score: {self.score}",
-            60,
+            110,
             SCREEN_HEIGHT - 35,
             arcade.color.WHITE,
             12
@@ -447,7 +462,7 @@ class MyGame(arcade.Window):
 
         arcade.draw_text(
             f"Lives: {self.lives}",
-            110,
+            170,
             SCREEN_HEIGHT - 35,
             arcade.color.WHITE,
             12
@@ -460,7 +475,7 @@ class MyGame(arcade.Window):
         arcade.draw_text(
             f"Keys: {self.keys_collected}/"
             f"{self.total_keys}",
-            160,
+            250,
             SCREEN_HEIGHT - 35,
             arcade.color.WHITE,
             12
@@ -545,7 +560,6 @@ class MyGame(arcade.Window):
         if self.left_pressed:
 
             self.player.change_x = -PLAYER_MOVEMENT_SPEED
-            
 
         if self.right_pressed:
 
@@ -556,6 +570,7 @@ class MyGame(arcade.Window):
         # =================================================
 
         self.physics_engine.update()
+
         # =================================================
         # SCREEN BOUNDARY
         # =================================================
@@ -563,12 +578,13 @@ class MyGame(arcade.Window):
         if self.player.left < 0:
 
             self.player.left = 0
-            self.player.change_x = 0
 
+            self.player.change_x = 0
 
         if self.player.right > SCREEN_WIDTH:
 
             self.player.right = SCREEN_WIDTH
+
             self.player.change_x = 0
 
         # =================================================
@@ -582,6 +598,7 @@ class MyGame(arcade.Window):
         # =================================================
 
         self.collect_props()
+
 
     # =====================================================
     # COLLECT PROPS
@@ -604,14 +621,13 @@ class MyGame(arcade.Window):
 
                 self.keys_collected += 1
 
-                self.score += POINTS_PER_ITEM
-
                 print(
                     f"KEY: "
                     f"{self.keys_collected}/"
                     f"{self.total_keys}"
                 )
 
+                # Key tidak menambah score
                 prop.remove_from_sprite_lists()
 
                 # -------------------------------------------------
@@ -620,8 +636,7 @@ class MyGame(arcade.Window):
 
                 if (
                     self.total_keys > 0
-                    and self.keys_collected
-                    >= self.total_keys
+                    and self.keys_collected >= self.total_keys
                 ):
 
                     self.complete_level()
@@ -634,8 +649,12 @@ class MyGame(arcade.Window):
 
                 self.score += POINTS_PER_ITEM
 
-                prop.remove_from_sprite_lists()
+                print(
+                    f"Score bertambah: "
+                    f"{self.score}"
+                )
 
+                prop.remove_from_sprite_lists()
 
 
     # =====================================================
@@ -778,8 +797,9 @@ class MyGame(arcade.Window):
 
         next_level = self.current_level + 1
 
+        # Gunakan huruf kecil agar konsisten
         next_level_file = (
-            f"Level{next_level}.json"
+            f"level{next_level}.json"
         )
 
         # -------------------------------------------------
@@ -930,6 +950,3 @@ window = MyGame(
 window.setup()
 
 arcade.run()
-
-
-        
